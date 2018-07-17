@@ -43,7 +43,7 @@ var email;
  app.get('/api/hitURL', function(req, res) {
 
 //Get orchad env data
-request.get('https://orchard.appdirect.tools/api/environments/od-p3qjjnfxx',function (err, respose, body) {
+request.get('https://orchard.appdirect.tools/api/environments/od-fk76jvl55',function (err, respose, body) {
 var jp = require('jsonpath');
 
  var info = JSON.parse(body);
@@ -74,7 +74,7 @@ var jp = require('jsonpath');
 //1. Create company
 				var randomstring = require("randomstring");
  				var uniqueString= randomstring.generate(15)
-		request.post('https://od-p3qjjnfxx.od16.appdirectondemand.com/api/account/v1/companies',{
+		request.post('https://od-fk76jvl55.od16.appdirectondemand.com/api/account/v1/companies',{
        oauth: {
           consumer_key: 'appdirect-237',
           consumer_secret: 'VDJbN2pCuhdJCEwq'
@@ -105,7 +105,7 @@ var jp = require('jsonpath');
          var companyName = console.log(info.name)
          var companyEmail = console.log(info.emailAddress)
 
-         var url = 'https://od-p3qjjnfxx.od16.appdirectondemand.com/api/account/v1/companies/'+companyId+'/users';
+         var url = 'https://od-fk76jvl55.od16.appdirectondemand.com/api/account/v1/companies/'+companyId+'/users';
 
 					email= randomstring.generate(15)+"@appdirect.com"
 
@@ -140,6 +140,35 @@ var jp = require('jsonpath');
                   console.log("DB Error Reusults: " + err);
                   activationToken = rows[0].activation_token;
                   console.log("Successfully get the Activation Token from database, Token is: "+activationToken)
+
+
+
+                  // 3. Activate user
+
+                  request.put('https://od-fk76jvl55.od16.appdirectondemand.com/api/account/v1/users/'+userId,{
+
+                         oauth: {
+                            consumer_key: 'appdirect-237',
+                            consumer_secret: 'VDJbN2pCuhdJCEwq'
+                               },
+                               headers: { 'content-type': 'application/xml; charset=UTF-8' },
+                  // all meta data should be included here for proper signing
+                         body:"<user><activationUrl>https://od-fk76jvl55.od16.appdirectondemand.com/accountSetup/"+activationToken+"</activationUrl><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><customAttributes/><deleted>false</deleted><email>"+email+"</email><firstName>Olivia</firstName><id>"+userId+"</id><language>en</language><lastName>Reeves</lastName><locale>en_US</locale><password>tester2015</password><status>ACTIVE</status><memberships><membership><enabled>false</enabled><company><name>4E5EIEIWNN</name><enabled>false</enabled><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><uuid>"+companyId+"</uuid></company><roles><role>SYS_ADMIN</role></roles></membership></memberships><rssrAssociations/></user>",
+
+                          json: false
+                         }, function (err, respose, body) {
+                         console.log('https://od-p3qjjnfxx.od16.appdirectondemand.com/api/account/v1/users/'+userId);
+
+
+                         console.log("User is activated")
+                         console.log(respose.statusCode);
+
+                         });
+
+
+
+
+
 									 });
                    });
 								}
@@ -148,65 +177,18 @@ var jp = require('jsonpath');
 })
 
 // 3. Activate user
-
-request.put('https://od-p3qjjnfxx.od16.appdirectondemand.com/api/account/v1/users/'+userId,{
+/*
+request.put('https://od-fk76jvl55.od16.appdirectondemand.com/api/account/v1/users/'+userId,{
 
        oauth: {
           consumer_key: 'appdirect-237',
           consumer_secret: 'VDJbN2pCuhdJCEwq'
              },
-             headers: { 'content-type': 'application/json; charset=UTF-8' },
+             headers: { 'content-type': 'application/xml; charset=UTF-8' },
 // all meta data should be included here for proper signing
-       body:
-                                                                           {
-                                                                              "activationUrl": "https://od-p3qjjnfxx.od16.appdirectondemand.com/accountSetup/"+activationToken,
-                                                                              "contact": {
-                                                                                 "phoneNumber": "6503212121",
-                                                                                 "address": {
-                                                                                    "state": "MA",
-                                                                                    "street1": "50 GROVE ST.",
-                                                                                    "city": "Somerville",
-                                                                                    "zip": "02114",
-                                                                                    "country": "US"
-                                                                                 }
-                                                                              },
-                                                                              "customAttributes": [],
-                                                                              "deleted": "false",
-                                                                              "email": ''+email+'',
-                                                                              "firstName": "Olivia",
-                                                                              "id": ''+userId+'',
-                                                                              "language": "en",
-                                                                              "lastName": "Reeves",
-                                                                              "locale": "en_US",
-                                                                              "password": "tester2015",
-                                                                              "status": "ACTIVE",
-                                                                              "memberships": {
-                                                                                 "membership": {
-                                                                                    "enabled": "false",
-                                                                                    "company": {
-                                                                                       "name": "4E5EIEIWNN",
-                                                                                       "enabled": "false",
-                                                                                       "contact": {
-                                                                                          "phoneNumber": "6503212121",
-                                                                                          "address": {
-                                                                                             "state": "MA",
-                                                                                             "street1": "50 GROVE ST.",
-                                                                                             "city": "Somerville",
-                                                                                             "zip": "02114",
-                                                                                             "country": "US"
-                                                                                          }
-                                                                                       },
-                                                                                       "uuid": ''+companyId+'',
-                                                                                    },
-                                                                                    "roles": {
-                                                                                       "role": "SYS_ADMIN"
-                                                                                    }
-                                                                                 }
-                                                                              },
-                                                                              "rssrAssociations": []
-                                                                           },
+       body:"<user><activationUrl>https://od-fk76jvl55.od16.appdirectondemand.com/accountSetup/"+activationToken+"</activationUrl><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><customAttributes/><deleted>false</deleted><email>"+email+"</email><firstName>Olivia</firstName><id>"+userId+"</id><language>en</language><lastName>Reeves</lastName><locale>en_US</locale><password>tester2015</password><status>ACTIVE</status><memberships><membership><enabled>false</enabled><company><name>4E5EIEIWNN</name><enabled>false</enabled><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><uuid>"+companyId+"</uuid></company><roles><role>SYS_ADMIN</role></roles></membership></memberships><rssrAssociations/></user>",
 
-        json: true
+        json: false
        }, function (err, respose, body) {
        console.log('https://od-p3qjjnfxx.od16.appdirectondemand.com/api/account/v1/users/'+userId);
 
@@ -214,7 +196,7 @@ request.put('https://od-p3qjjnfxx.od16.appdirectondemand.com/api/account/v1/user
        console.log("User is activated")
        console.log(respose.statusCode);
 
-       });
+       });*/
 
 
 });
