@@ -23,7 +23,7 @@
     var Todo = mongoose.model('Todo', {
         text : String
     });
-    mongoose.connect('mongodb://127.0.0.1:27017/TestDB');     // connect to mongoDB database on modulus.io
+    //mongoose.connect('mongodb://127.0.0.1:27017/TestDB');     // connect to mongoDB database on modulus.io
 
     app.use(express.static(__dirname + '/public'));                 // set the static files location /public/img will be /img for users
     app.use(morgan('dev'));                                         // log every request to the console
@@ -40,14 +40,23 @@ var activationToken;
 var userId;
 var companyId;
 var email;
- app.get('/api/createAccount', function(req,response) {
+var orchadName;
+var originalOrchadName;
+ app.post('/api/createAccount', function(req,response) {
+
+	orchadName=''+req.body.user+'';
+  originalOrchadName=orchadName.substr(0,orchadName.indexOf("."));
+ /* console.log("originl orchadname is : "+originalOrchadName);
+  console.log("given orchad name is: "+orchadName);
+  console.log('https://orchard.appdirect.tools/api/environments/'+originalOrchadName);*/
 
  var randomstring = require("randomstring");
-email= ''+ randomstring.generate(15)+"@appdirect.com" +''
+email= ''+ randomstring.generate(15)+"@appdirect.com" +'';
 
 //Get orchad env data
-				request.get('https://orchard.appdirect.tools/api/environments/od-fkd53hvq5',function (err, respose, body) {
+				request.get('https://orchard.appdirect.tools/api/environments/'+originalOrchadName,function (err, respose, body) {
 							var jp = require('jsonpath');
+							console.log("Fetch DB Info "+ respose.statusCode);
 
 							var info = JSON.parse(body);
 							var dbName=jp.query(info, '$.meta.appdirect.mysql.username');
@@ -68,16 +77,13 @@ email= ''+ randomstring.generate(15)+"@appdirect.com" +''
 				 con.connect(function(err) {
 					 console.log(err);
 				 });
-
-						console.log("orchad env api statuc code: "+ respose.statusCode);
-
-				 });
+});
 
 
 				//1. Create company
 								//var randomstring = require("randomstring");
 								var uniqueString= randomstring.generate(15)
-						request.post('https://od-fkd53hvq5.od16.appdirectondemand.com/api/account/v1/companies',{
+						request.post('https://'+orchadName+'.appdirectondemand.com/api/account/v1/companies',{
 							 oauth: {
 									consumer_key: 'appdirect-237',
 									consumer_secret: 'VDJbN2pCuhdJCEwq'
@@ -102,14 +108,12 @@ email= ''+ randomstring.generate(15)+"@appdirect.com" +''
 								json: true
 							 }, function (err, respose, body) {
 
-								console.log("Create company api status code : "+respose.statusCode);
+								//console.log("Create company "+respose.statusCode);
 								var info = JSON.parse(JSON.stringify(body));
 								companyId = info.id;
 
-								 var url = 'https://od-fkd53hvq5.od16.appdirectondemand.com/api/account/v1/companies/'+companyId+'/users';
+								 var url = 'https://'+orchadName+'.appdirectondemand.com/api/account/v1/companies/'+companyId+'/users';
 
-									//email= ''+ randomstring.generate(15)+"@appdirect.com" +''
-                  console.log(email)
 								 //INNER CALL, Create user
 								 request.post(url,{
 												oauth: {
@@ -125,60 +129,41 @@ email= ''+ randomstring.generate(15)+"@appdirect.com" +''
 												 json: false
 												}, function (err, respose, body) {
 												if(respose.statusCode == 201){
-													console.log("Create user response code : "+respose.statusCode)
-													console.log("User created with the email" + email)
+													console.log("Create User : "+respose.statusCode)
 													var parser=new xml2js.Parser();
 
 													parser.parseString(body, function (err, result) {
-															console.log(err);
 															userId=''+result['user']['id']+'';
 															userId=''+userId+';'
-															console.log("user id from response "+ userId);
 													});
 
 													con.connect(function(err) {
 														 con.query("select activation_token from users where email_address='"+''+email+''+"';", function (err, rows, fields) {
-													console.log("DB Error Reusults: " + err);
 													activationToken = rows[0].activation_token;
-													console.log("Successfully get the Activation Token from database, Token is: "+activationToken)
 
-
-
-													// 3. Activate user
-
-													request.put('https://od-fkd53hvq5.od16.appdirectondemand.com/api/account/v1/users/'+userId,{
-
-																 oauth: {
+												// 3. Activate user
+														request.put('https://'+orchadName+'.appdirectondemand.com/api/account/v1/users/'+userId,{
+																		 oauth: {
 																		consumer_key: 'appdirect-237',
 																		consumer_secret: 'VDJbN2pCuhdJCEwq'
 																			 },
 																			 headers: { 'content-type': 'application/xml; charset=UTF-8' },
 													// all meta data should be included here for proper signing
-																 body:"<user><activationUrl>https://od-fkd53hvq5.od16.appdirectondemand.com/accountSetup/"+activationToken+"</activationUrl><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><customAttributes/><deleted>false</deleted><email>"+email+"</email><firstName>Olivia</firstName><id>"+userId+"</id><language>en</language><lastName>Reeves</lastName><locale>en_US</locale><password>tester2015</password><status>ACTIVE</status><memberships><membership><enabled>false</enabled><company><name>4E5EIEIWNN</name><enabled>false</enabled><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><uuid>"+companyId+"</uuid></company><roles><role>SYS_ADMIN</role></roles></membership></memberships><rssrAssociations/></user>",
+																 body:"<user><activationUrl>https://"+orchadName+".appdirectondemand.com/accountSetup/"+activationToken+"</activationUrl><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><customAttributes/><deleted>false</deleted><email>"+email+"</email><firstName>Olivia</firstName><id>"+userId+"</id><language>en</language><lastName>Reeves</lastName><locale>en_US</locale><password>tester2015</password><status>ACTIVE</status><memberships><membership><enabled>false</enabled><company><name>4E5EIEIWNN</name><enabled>false</enabled><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><uuid>"+companyId+"</uuid></company><roles><role>SYS_ADMIN</role></roles></membership></memberships><rssrAssociations/></user>",
 
 																	json: false
 																 }, function (err, respose, body) {
-																 console.log('https://od-fkd53hvq5.od16.appdirectondemand.com/api/account/v1/users/'+userId);
-
-
-																 console.log("User is activated")
-																 console.log(respose.statusCode);
+																	console.log(email +" User activated : "+respose.statusCode);
 
 																 });
-
-
-
-
-
-													 });
+															});
 													 });
 												}
 
 				 })
 				})
 
-				 console.log(email);
-				 response.json(email);
+				response.json({email:email});
 
 });
 

@@ -8,6 +8,7 @@
     "JSONPath": "^0.11.2",
     "body-parser": "~1.5.2",
     "express": "~4.7.2",
+    "get-form-data": "^2.0.0",
     "jsonpath": "^1.0.0",
     "just.randomstring": "^0.1.1",
     "method-override": "~2.1.2",
