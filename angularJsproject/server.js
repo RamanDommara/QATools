@@ -42,10 +42,21 @@ var companyId;
 var email;
 var orchadName;
 var originalOrchadName;
+var role;
+var permissions;
  app.post('/api/createAccount', function(req,response) {
 
 	orchadName=''+req.body.user+'';
   originalOrchadName=orchadName.substr(0,orchadName.indexOf("."));
+  role=''+req.body.role+'';
+  console.log("Role is "+role);
+
+  if(role == "DEVELOPER"){
+  permissions='';
+  }
+
+
+
  /* console.log("originl orchadname is : "+originalOrchadName);
   console.log("given orchad name is: "+orchadName);
   console.log('https://orchard.appdirect.tools/api/environments/'+originalOrchadName);*/
@@ -105,8 +116,11 @@ email= ''+ randomstring.generate(15)+"@appdirect.com" +'';
 																																										 "emailAddress": uniqueString+"@appdirect.com",
 																																										 "permissions": []},
 
-								json: true
+
+							json: true
 							 }, function (err, respose, body) {
+							 console.log("company error is "+err);
+							 console.log(respose.statusCode);
 
 								//console.log("Create company "+respose.statusCode);
 								var info = JSON.parse(JSON.stringify(body));
@@ -123,7 +137,7 @@ email= ''+ randomstring.generate(15)+"@appdirect.com" +'';
 												 headers: { 'content-type': 'application/xml; charset=UTF-8' },
 
 												 // all meta data should be included here for proper signing
-												body:"<user><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><customAttributes/><deleted>false</deleted><email>"+email+"</email><firstName>Chris</firstName><language>en</language><lastName>Weiss</lastName><locale>en_US</locale><password>tester2015</password><roles><role>USER</role></roles></user>",
+												body:"<user><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><customAttributes/><deleted>false</deleted><email>"+email+"</email><firstName>Chris</firstName><language>en</language><lastName>Weiss</lastName><locale>en_US</locale><password>tester2015</password><roles><role>"+role+"</role></roles></user>",
 
 
 												 json: false
@@ -149,7 +163,7 @@ email= ''+ randomstring.generate(15)+"@appdirect.com" +'';
 																			 },
 																			 headers: { 'content-type': 'application/xml; charset=UTF-8' },
 													// all meta data should be included here for proper signing
-																 body:"<user><activationUrl>https://"+orchadName+".appdirectondemand.com/accountSetup/"+activationToken+"</activationUrl><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><customAttributes/><deleted>false</deleted><email>"+email+"</email><firstName>Olivia</firstName><id>"+userId+"</id><language>en</language><lastName>Reeves</lastName><locale>en_US</locale><password>tester2015</password><status>ACTIVE</status><memberships><membership><enabled>false</enabled><company><name>4E5EIEIWNN</name><enabled>false</enabled><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><uuid>"+companyId+"</uuid></company><roles><role>SYS_ADMIN</role></roles></membership></memberships><rssrAssociations/></user>",
+																 body:"<user><activationUrl>https://"+orchadName+".appdirectondemand.com/accountSetup/"+activationToken+"</activationUrl><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><customAttributes/><deleted>false</deleted><email>"+email+"</email><firstName>Olivia</firstName><id>"+userId+"</id><language>en</language><lastName>Reeves</lastName><locale>en_US</locale><password>tester2015</password><status>ACTIVE</status><memberships><membership><enabled>false</enabled><company><name>4E5EIEIWNN</name><enabled>false</enabled><contact><phoneNumber>6503212121</phoneNumber><address><state>MA</state><street1>50 GROVE ST.</street1><city>Somerville</city><zip>02114</zip><country>US</country></address></contact><uuid>"+companyId+"</uuid></company><roles><role>"+role+"</role></roles></membership></memberships><rssrAssociations/></user>",
 
 																	json: false
 																 }, function (err, respose, body) {

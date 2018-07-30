@@ -8,7 +8,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
 
-	<title>Node/Angular Todo App</title>
+	<title>Node/Angular CreateUser App</title>
 
 	<!-- SCROLLS -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"><!-- load bootstrap -->
@@ -35,8 +35,23 @@
 				<div class="form-group">
 
 					<!-- BIND THIS VALUE TO formData.text IN ANGULAR -->
-					<input type="text" class="form-control input-lg text-center" placeholder="enter orchad name like 'od-fkd53hvq5.od16'" ng-model="fomdata">
+					<input type="text" class="form-control input-lg text-center" placeholder="Enter orchad name like 'od-fkd53hvq5.od16'" ng-model="fomdata">
 				</div>
+				<br>
+
+<p><b>Select Role:
+					<select name ng-model="selectedRole">
+						<option value="BILLING_ADMIN">BillingAdmin</option>
+						<option value="SYS_ADMIN">SystemAdmin</option>
+						<option value="USER">User</option>
+						<option value="DEVELOPER">Developer</option>
+					</select>
+</b></p>
+				<br>
+
+
+
+
 
 				<!-- createToDo() WILL CREATE NEW TODOS -->
 				<button type="submit" class="btn btn-primary btn-lg" ng-click="createUser()">Create User</button>
